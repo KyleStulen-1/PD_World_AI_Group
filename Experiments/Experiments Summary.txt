@@ -1,0 +1,18 @@
+1a prandom
+	terminal 8
+	reward -3282
+1a prandom 
+	terminal 8 
+	reward -3044
+1b pexploit 
+	terminal 14 
+	reward 386
+1b pexploit 
+	terminal 12 
+	reward -972
+1c pgreedy
+	terminal 13 
+	reward -272
+1c pgreedy 
+	terminal 11 
+	-1336
