@@ -117,6 +117,7 @@ male_agent = pd_world.Agent("M", world, alpha=0.3, gamma=0.5)
 
 reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title = play(world, female_agent, male_agent, policy=1, max_steps=8000)
 
+run = ["1_a_PRANDOM","run_1"]
 
 # Calculate number of steps between terminal states and store their indexes for graphing
 steps_between_terminal_states = [steps_at_terminal_log[0]]
@@ -127,7 +128,7 @@ terminal_states_indexes = []
 for i in range(len(steps_between_terminal_states)):
     terminal_states_indexes.append(i+1)
 
-run = ["1a","run 1"]
+
 
 #Fig1: Shows graph of reward over experiment with red pips for reached terminal state
 plt.plot(reward_log)
@@ -146,7 +147,6 @@ ax2.set_ylabel('Reward per terminal state reached')
 ax1.plot(terminal_states_indexes, steps_between_terminal_states)
 ax2.plot(terminal_states_indexes, reward_per_episode_log)
 ax1.set_ylim(0)
-ax2.set_ylim(0)
 plt.locator_params(axis="both", integer=True)
 plt.savefig(run[0] + " steps per terminal space, " + run[1])
 
@@ -169,6 +169,39 @@ def triangulation_for_triheatmap(M, N):
 
     return [Triangulation(x, y, triangles) for triangles in [trianglesN, trianglesE, trianglesS, trianglesW]]
 
+
+def create_Q_table_heatmap(heatmap_title, filename, q_values, triangul):
+    cmaps = ['Blues', 'Greens', 'Purples', 'Reds']
+    norms = [plt.Normalize(-0.5, 1) for _ in range(4)]
+    fig, ax = plt.subplots()
+
+    plt.title(heatmap_title)
+    imgs = [ax.tripcolor(t, val.ravel(), cmap='RdYlGn', vmin=-1.2, vmax=1, ec='white')
+            for t, val in zip(triangul, q_values)]
+
+    for val, dir in zip(q_values, [(-1, 0), (0, 1), (1, 0), (0, -1)]):
+        for i in range(M):
+            for j in range(N):
+                v = val[j][i]
+                ax.text(i + 0.3 * dir[1], j + 0.3 * dir[0], f'{v:.2f}', color='k' if 0.2 < v < 0.8 else 'w',
+                        ha='center', va='center')
+
+    cbar = fig.colorbar(imgs[0], ax=ax)
+    ax.set_xticks(range(M))
+    ax.set_yticks(range(N))
+    ax.invert_yaxis()
+    ax.margins(x=0, y=0)
+    ax.set_aspect('equal', 'box')  # square cells
+    plt.tight_layout()
+    #plt.savefig()
+    return
+
+
+M, N = 5,5
+triangulation = triangulation_for_triheatmap(M, N)
+
+
+
 #print(F_q_values)
 F_q_values_has_block = F_q_values[0]
-print(F_q_values_has_block)
+#print(F_q_values_has_block)
