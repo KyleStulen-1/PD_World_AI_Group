@@ -88,15 +88,12 @@ def play(world, agent_F, agent_M, policy, max_steps, SARSA=False):
             reward_per_episode = 0
         reward_log.append(total_reward)
 
-    print('Number of terminal states the agent reached: ', world.num_terminal_states_reached)
-    print('Total reward: ', total_reward)
-
-
-
     agent_F.print_q_table()
     agent_M.print_q_table()
 
     print("Total steps taken: ", len(reward_log))
+    print('Number of terminal states the agent reached: ', world.num_terminal_states_reached)
+    print('Total reward: ', total_reward)
 
     F_q_values = agent_F.get_heatmap_Q_values()
     M_q_values = agent_M.get_heatmap_Q_values()
@@ -136,7 +133,7 @@ plt.xlabel('Step Count')
 plt.ylabel('Total Reward')
 plt.title(title)
 plt.scatter(steps_at_terminal_log, terminal_y, marker=',', color='r')
-plt.savefig(run[0] + " total reward log, " + run[1])
+plt.savefig(run[0] + " " + run[1] + " total_reward_log")
 
 #Fig2 :
 fig, (ax1, ax2) = plt.subplots(2, sharex=True, figsize=(6,6))
@@ -148,7 +145,7 @@ ax1.plot(terminal_states_indexes, steps_between_terminal_states)
 ax2.plot(terminal_states_indexes, reward_per_episode_log)
 ax1.set_ylim(0)
 plt.locator_params(axis="both", integer=True)
-plt.savefig(run[0] + " steps per terminal space, " + run[1])
+plt.savefig(run[0] + " " + run[1] + " steps_per_terminal_space")
 
 # Functions for heatmap
 def triangulation_for_triheatmap(M, N):
@@ -171,7 +168,6 @@ def triangulation_for_triheatmap(M, N):
 
 
 def create_Q_table_heatmap(heatmap_title, filename, q_values, triangul):
-    cmaps = ['Blues', 'Greens', 'Purples', 'Reds']
     norms = [plt.Normalize(-0.5, 1) for _ in range(4)]
     fig, ax = plt.subplots()
 
@@ -184,7 +180,7 @@ def create_Q_table_heatmap(heatmap_title, filename, q_values, triangul):
             for j in range(N):
                 v = val[j][i]
                 ax.text(i + 0.3 * dir[1], j + 0.3 * dir[0], f'{v:.2f}', color='k' if 0.2 < v < 0.8 else 'w',
-                        ha='center', va='center')
+                        ha='center', va='center', fontsize=9)
 
     cbar = fig.colorbar(imgs[0], ax=ax)
     ax.set_xticks(range(M))
@@ -193,15 +189,16 @@ def create_Q_table_heatmap(heatmap_title, filename, q_values, triangul):
     ax.margins(x=0, y=0)
     ax.set_aspect('equal', 'box')  # square cells
     plt.tight_layout()
-    #plt.savefig()
+    plt.savefig(filename)
     return
 
-
-M, N = 5,5
+M,N = 5,5
 triangulation = triangulation_for_triheatmap(M, N)
 
+create_Q_table_heatmap(title + "\nFemale Has Block Heatmap", run[0] + " " + run[1] + " female_has_block_heatmap ", F_q_values[0], triangulation)
+create_Q_table_heatmap(title + "\nFemale No Block Heatmap", run[0] + " " + run[1] + " female_no_block_heatmap ", F_q_values[1], triangulation)
+
+create_Q_table_heatmap(title + "\nMale Has Block Heatmap", run[0] + " " + run[1] + " male_has_block_heatmap ", M_q_values[0], triangulation)
+create_Q_table_heatmap(title + "\nMale No Block Heatmap", run[0] + " " + run[1] + " male_no_block_heatmap ", M_q_values[1], triangulation)
 
 
-#print(F_q_values)
-F_q_values_has_block = F_q_values[0]
-#print(F_q_values_has_block)

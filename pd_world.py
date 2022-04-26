@@ -117,7 +117,6 @@ class PDWorld:
                 self.male_current_state[2] = False
                 reward = 13
 
-
         return reward
 
     def check_walls(self, agent):
