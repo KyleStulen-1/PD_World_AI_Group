@@ -5,11 +5,11 @@ class PDWorld:
     #pick, pick, drop, drop, drop, drop
     starting_state = np.array([[3,1,10],[2,4,10],[0,0,0],[0,4,0],[2,2,0],[4,4,0]])
     terminal_state = np.array([[3,1,0],[2,4,0],[0,0,5],[0,4,5],[2,2,5],[4,4,5]])
+    num_terminal_states_reached = 0
 
     def __init__(self):
         self.height = 5
         self.width = 5
-        self.num_terminal_states_reached = 0
 
         self.reward_grid = np.empty((self.height,self.width), dtype=object)
         #cost of -1 for moving up,down,right,left
@@ -32,7 +32,7 @@ class PDWorld:
         #store starting state for restarting of board after reaching terminal state
         self.pd_starting_state = PDWorld.starting_state.copy()
         #updated with current values of blocks in pickup and drop locations
-        self.pd_current_state = self.starting_state
+        self.pd_current_state = self.starting_state.copy()
         #terminal state storage
         self.pd_terminal_state = PDWorld.terminal_state.copy()
 
@@ -187,37 +187,28 @@ class PDWorld:
             if 'N' in actions:
                 if (self.female_current_state[0]-1) == agent2loc[0] and (self.female_current_state[1]) == agent2loc[1]:
                     actions.remove('N')
-                    #print("removed N collision")
             if 'S' in actions:
                 if (self.female_current_state[0]+1) == agent2loc[0] and (self.female_current_state[1]) == agent2loc[1]:
                     actions.remove('S')
-                    #print("removed S collision")
             if 'W' in actions:
                 if (self.female_current_state[0]) == agent2loc[0] and (self.female_current_state[1]-1) == agent2loc[1]:
                     actions.remove('W')
-                    #print("removed W collision")
             if 'E' in actions:
                 if (self.female_current_state[0]) == agent2loc[0] and (self.female_current_state[1]+1) == agent2loc[1]:
                     actions.remove('E')
-                    #print("removed E collision")
         else:
             if 'N' in actions:
                 if (self.male_current_state[0]-1) == agent2loc[0] and (self.male_current_state[1]) == agent2loc[1]:
                     actions.remove('N')
-                    #print("removed N collision")
             if 'S' in actions:
                 if (self.male_current_state[0]+1) == agent2loc[0] and (self.male_current_state[1]) == agent2loc[1]:
                     actions.remove('S')
-                    #print("removed S collision")
             if 'W' in actions:
                 if (self.male_current_state[0]) == agent2loc[0] and (self.male_current_state[1]-1) == agent2loc[1]:
                     actions.remove('W')
-                    #print("removed W collision")
             if 'E' in actions:
                 if (self.male_current_state[0]) == agent2loc[0] and (self.male_current_state[1]+1) == agent2loc[1]:
                     actions.remove('E')
-                    #print("removed E collision")
-
         #print("actions returned after collision: ", actions)
         return actions
 
@@ -227,6 +218,7 @@ class PDWorld:
         valid_actions_noPD = [i for i in valid_actions if i not in ('P', 'D')]  #list of actions without pickup or drop
         if agent == "F":
             if self.female_current_state[0:2] in self.pd_current_state[:, 0:2].tolist():
+                #if there exists an entry in pd_current_state for the position agent is corrently at
                 row = np.where((self.pd_current_state[:, 0:2] == self.female_current_state[0:2]).all(axis=1))[0].tolist()
                 if row[0] in [0, 1]:
                     if self.female_current_state[2] == False and int(self.pd_current_state[row[0], 2]) != 0:
@@ -243,6 +235,7 @@ class PDWorld:
         #else male
         else:
             if self.male_current_state[0:2] in self.pd_current_state[:, 0:2].tolist():
+                #if there exists an entry in pd_current_state for the position agent is corrently at
                 row = np.where((self.pd_current_state[:, 0:2] == self.male_current_state[0:2]).all(axis=1))[0].tolist()
                 if row[0] in [0, 1]:
                     if self.male_current_state[2] == False and int(self.pd_current_state[row[0], 2]) != 0:
@@ -284,8 +277,6 @@ class Agent:
                 self.q_table_no_block[x, y] = {'N': 0, 'S': 0, 'W': 0, 'E': 0, 'P': 0, 'D': 0}
 
     def PRANDOM(self, agent2loc):
-        #print("Valid actions: ", self.world.get_valid_actions(self.name))
-
         #if action is pick or drop
         if len(self.world.get_valid_actions(self.name, agent2loc)) == 1:
             action = self.world.get_valid_actions(self.name, agent2loc)
@@ -330,12 +321,6 @@ class Agent:
             else:
                 highest_q_value = max(next_state_qvalues.values())
 
-            #print('Reward: ', reward)
-            #print("action: ", action)
-            #print("current_state: ", self.name, ": ", current_state)
-            #print("formatted current state: ", [current_state[0], current_state[1]])
-            #print(self.q_table_no_block)
-            #self.print_q_table()
             #print("current_q_value: ", self.q_table_no_block[current_state[0], current_state[1]][action])
             current_q_value = self.q_table_has_block[current_state[0], current_state[1]][action]
             self.q_table_has_block[current_state[0], current_state[1]][action] = (
@@ -345,9 +330,7 @@ class Agent:
 
         else:  #not holding a block
             next_state_qvalues = self.q_table_no_block[next_state[0], next_state[1]].copy()
-            #print("next_state_qvalues: ",[next_state[0], next_state[1]], ": ", next_state_qvalues)
             row = np.where((next_state[0:2] == self.world.pd_current_state[:, 0:2]).all(axis=1))[0].tolist()
-            #print("row finder: ", np.where((next_state[0:2] == self.world.pd_current_state[:, 0:2]).all(axis=1))[0].tolist())
             if row:
                 # if pickup location is full delete those Q values from being considered
                 if self.world.pd_current_state[row[0], 2] == 0:
@@ -358,12 +341,7 @@ class Agent:
                     highest_q_value = max(next_state_qvalues.values())
             else:
                 highest_q_value = max(next_state_qvalues.values())
-            #print("Reward: ", reward)
-            #print("action: ", action[0])
-            #print("current_state: ", self.name, ": ", current_state)
-            #print("formatted current state: ", [current_state[0], current_state[1]])
-            #print(self.q_table_no_block)
-            #self.print_q_table()
+
             #print("current_q_value: ", self.q_table_no_block[current_state[0], current_state[1]][action])
             current_q_value = self.q_table_no_block[current_state[0], current_state[1]][action]
             self.q_table_no_block[current_state[0], current_state[1]][action] = (

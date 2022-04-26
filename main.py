@@ -18,10 +18,7 @@ def play(world, agent_F, agent_M, policy, max_steps, SARSA=False):
         reward = 0
         if agent_F_turn:
             current_state = world.female_current_state.copy()
-            #print("F current state: ", current_state)
-            #print("agent_M loc: ", world.male_current_state[0:2])
             action = agent_F.PRANDOM(world.male_current_state[0:2])
-            #print("Chosen action: ", action)
             reward = world.take_action(action, agent_F.name)
             next_state = world.female_current_state.copy()
             agent_F.Q_Learning(current_state, reward, next_state, action)
@@ -29,10 +26,7 @@ def play(world, agent_F, agent_M, policy, max_steps, SARSA=False):
         #else male
         else:
             current_state = world.male_current_state.copy()
-            # print("F current state: ", current_state)
-            #print("agent_F loc: ", world.female_current_state[0:2])
             action = agent_M.PRANDOM(world.female_current_state[0:2])
-            # print("Chosen action: ", action)
             reward = world.take_action(action, agent_M.name)
             next_state = world.male_current_state.copy()
             agent_M.Q_Learning(current_state, reward, next_state, action)
