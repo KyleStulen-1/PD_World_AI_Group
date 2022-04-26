@@ -115,7 +115,7 @@ male_agent = pd_world.Agent("M", world, alpha=0.3, gamma=0.5)
 #SET POLICY HERE
 reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title = play(world, female_agent, male_agent, policy=2, max_steps=8000)
 #SET FILE NAMES HERE
-run = ["1_c_PGREEDY","run_1"]
+run = ["1_b_PGREEDY","run_2"]
 
 # Calculate number of steps between terminal states and store their indexes for graphing
 steps_between_terminal_states = [steps_at_terminal_log[0]]
