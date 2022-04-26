@@ -287,6 +287,36 @@ class Agent:
             action = action_options[random.randint(0, len(action_options) - 1)]
         return action
 
+    def PEXPLOIT(self, agent2loc):
+        if len(self.world.get_valid_actions(self.name, agent2loc)) == 1:
+            action = self.world.get_valid_actions(self.name, agent2loc)
+            action = action[0]
+        else:
+            if random.random() < 0.8:  #80% chance to choose option with best Q value
+                if self.name == "F":
+                    current_state = self.world.female_current_state
+                else:  #male
+                    current_state = self.world.male_current_state
+
+                action_options = self.world.get_valid_actions(self.name, agent2loc)
+
+                if current_state[2] == True:  #agent holding block
+                    current_state_q_values = self.q_table_has_block[current_state[0],current_state[1]].copy()
+                else:  #agent not holding block
+                    current_state_q_values = self.q_table_no_block[current_state[0],current_state[1]].copy()
+
+                invalid_actions = list(set(current_state_q_values.keys()) - set(action_options))
+                if invalid_actions:  #if there are invalid actions, remove those actions from q values
+                    [current_state_q_values.pop(key) for key in invalid_actions]
+                highest_q_value = max(current_state_q_values.values())
+                action = np.random.choice([k for k, v in current_state_q_values.items() if v == highest_q_value])
+
+            else:  #20% chance to choose random action
+                action_options = self.world.get_valid_actions(self.name, agent2loc)
+                action = action_options[random.randint(0, len(action_options) - 1)]
+
+        return action
+
     def print_q_table(self):
         print("\n Agent, ", self.name, " Q Table Holding Block")
         for x in range(self.world.height):

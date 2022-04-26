@@ -54,6 +54,7 @@ def play(world, agent_F, agent_M, policy, max_steps, SARSA=False):
                 graph_title = "PRANDOM"
             elif policy == 2:
                 #TODO
+                action = agent_F.PEXPLOIT(world.male_current_state[0:2])
                 graph_title = "PEXPLOIT"
             elif policy == 3:
                 #TODO
@@ -70,6 +71,7 @@ def play(world, agent_F, agent_M, policy, max_steps, SARSA=False):
                 graph_title = "PRANDOM"
             elif policy == 2:
                 # TODO
+                action = agent_M.PEXPLOIT(world.female_current_state[0:2])
                 graph_title = "PEXPLOIT"
             elif policy == 3:
                 # TODO
@@ -112,9 +114,9 @@ world = pd_world.PDWorld()
 female_agent = pd_world.Agent("F", world, alpha=0.3, gamma=0.5)
 male_agent = pd_world.Agent("M", world, alpha=0.3, gamma=0.5)
 
-reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title = play(world, female_agent, male_agent, policy=1, max_steps=8000)
+reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title = play(world, female_agent, male_agent, policy=2, max_steps=8000)
 
-run = ["1_a_PRANDOM","run_1"]
+run = ["1_b_PEXPLOIT","run_2"]
 
 # Calculate number of steps between terminal states and store their indexes for graphing
 steps_between_terminal_states = [steps_at_terminal_log[0]]
