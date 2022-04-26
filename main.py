@@ -115,14 +115,14 @@ def play(world, agent_F, agent_M, policy, max_steps, SARSA):
 
 
 world = pd_world.PDWorld()
-female_agent = pd_world.Agent("F", world, alpha=0.3, gamma=0.5)
-male_agent = pd_world.Agent("M", world, alpha=0.3, gamma=0.5)
+female_agent = pd_world.Agent("F", world, alpha=0.45, gamma=0.5)
+male_agent = pd_world.Agent("M", world, alpha=0.45, gamma=0.5)
 
 #SET POLICY HERE AND SARSA HERE
 reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title = play(
     world, female_agent, male_agent, policy=3, max_steps=8000, SARSA=True)
 #SET FILE NAMES HERE
-run = ["2_SARSA_PEXPLOIT","run_2"]
+run = ["3_SARSA_PEXPLOIT_a45","run_2"]
 
 # Calculate number of steps between terminal states and store their indexes for graphing
 steps_between_terminal_states = [steps_at_terminal_log[0]]
