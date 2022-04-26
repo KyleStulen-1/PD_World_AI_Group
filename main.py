@@ -119,7 +119,8 @@ female_agent = pd_world.Agent("F", world, alpha=0.3, gamma=0.5)
 male_agent = pd_world.Agent("M", world, alpha=0.3, gamma=0.5)
 
 #SET POLICY HERE AND SARSA HERE
-reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title = play(world, female_agent, male_agent, policy=2, max_steps=8000, SARSA=True)
+reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title = play(
+    world, female_agent, male_agent, policy=3, max_steps=8000, SARSA=True)
 #SET FILE NAMES HERE
 run = ["2_SARSA_PEXPLOIT","run_2"]
 
