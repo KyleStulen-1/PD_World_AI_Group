@@ -3,6 +3,7 @@ import numpy as np
 
 class PDWorld:
     #pick, pick, drop, drop, drop, drop
+    #first 2 entries correspond to pick action locations, last 4 entries correspond to drop action locations
     starting_state = np.array([[3,1,10],[2,4,10],[0,0,0],[0,4,0],[2,2,0],[4,4,0]])
     terminal_state = np.array([[3,1,0],[2,4,0],[0,0,5],[0,4,5],[2,2,5],[4,4,5]])
     num_terminal_states_reached = 0
@@ -326,7 +327,7 @@ class Agent:
             self.q_table_has_block[current_state[0], current_state[1]][action] = (
                 1 - self.alpha) * current_q_value + self.alpha * (reward + self.gamma * highest_q_value)
 
-            print("Updated Q Values: ", self.q_table_has_block[current_state[0], current_state[1]], "at", current_state)
+            print("Updated Q Values: ", self.q_table_has_block[current_state[0], current_state[1]], "at", self.name,": ", current_state)
 
         else:  #not holding a block
             next_state_qvalues = self.q_table_no_block[next_state[0], next_state[1]].copy()
