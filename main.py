@@ -12,25 +12,25 @@ def play(world, agent_F, agent_M, policy, max_steps, SARSA=False):
 
     agent_F_turn = True  # toggle for which agent's turn it is
 
-    while step < 5000:
+    while step < 7000:
         print("Steps: ", step)
         step += 1
         reward = 0
         if agent_F_turn:
             current_state = world.female_current_state.copy()
             #print("F current state: ", current_state)
-            print("agent_M loc: ", world.male_current_state[0:2])
+            #print("agent_M loc: ", world.male_current_state[0:2])
             action = agent_F.PRANDOM(world.male_current_state[0:2])
             #print("Chosen action: ", action)
             reward = world.take_action(action, agent_F.name)
             next_state = world.female_current_state.copy()
-            agent_F.Q_Learning(current_state, reward,next_state, action)
+            agent_F.Q_Learning(current_state, reward, next_state, action)
             agent_F_turn = False
         #else male
         else:
             current_state = world.male_current_state.copy()
             # print("F current state: ", current_state)
-            print("agent_F loc: ", world.female_current_state[0:2])
+            #print("agent_F loc: ", world.female_current_state[0:2])
             action = agent_M.PRANDOM(world.female_current_state[0:2])
             # print("Chosen action: ", action)
             reward = world.take_action(action, agent_M.name)

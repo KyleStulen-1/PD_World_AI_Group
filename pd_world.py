@@ -182,43 +182,43 @@ class PDWorld:
         return actions
 
     def remove_colliding_actions(self, agent, actions, agent2loc):
-        #print("actions: ", actions)
+        #print("actions before collision removal: ", actions)
         if agent == "F":
             if 'N' in actions:
                 if (self.female_current_state[0]-1) == agent2loc[0] and (self.female_current_state[1]) == agent2loc[1]:
                     actions.remove('N')
-                    print("removed N collision")
+                    #print("removed N collision")
             if 'S' in actions:
                 if (self.female_current_state[0]+1) == agent2loc[0] and (self.female_current_state[1]) == agent2loc[1]:
                     actions.remove('S')
-                    print("removed S collision")
+                    #print("removed S collision")
             if 'W' in actions:
                 if (self.female_current_state[0]) == agent2loc[0] and (self.female_current_state[1]-1) == agent2loc[1]:
                     actions.remove('W')
-                    print("removed W collision")
+                    #print("removed W collision")
             if 'E' in actions:
                 if (self.female_current_state[0]) == agent2loc[0] and (self.female_current_state[1]+1) == agent2loc[1]:
                     actions.remove('E')
-                    print("removed E collision")
+                    #print("removed E collision")
         else:
             if 'N' in actions:
                 if (self.male_current_state[0]-1) == agent2loc[0] and (self.male_current_state[1]) == agent2loc[1]:
                     actions.remove('N')
-                    print("removed N collision")
+                    #print("removed N collision")
             if 'S' in actions:
                 if (self.male_current_state[0]+1) == agent2loc[0] and (self.male_current_state[1]) == agent2loc[1]:
                     actions.remove('S')
-                    print("removed S collision")
+                    #print("removed S collision")
             if 'W' in actions:
                 if (self.male_current_state[0]) == agent2loc[0] and (self.male_current_state[1]-1) == agent2loc[1]:
                     actions.remove('W')
-                    print("removed W collision")
+                    #print("removed W collision")
             if 'E' in actions:
                 if (self.male_current_state[0]) == agent2loc[0] and (self.male_current_state[1]+1) == agent2loc[1]:
                     actions.remove('E')
-                    print("removed E collision")
+                    #print("removed E collision")
 
-        print(actions)
+        #print("actions returned after collision: ", actions)
         return actions
 
     def get_valid_actions(self, agent, agent2loc):
@@ -289,6 +289,7 @@ class Agent:
         #if action is pick or drop
         if len(self.world.get_valid_actions(self.name, agent2loc)) == 1:
             action = self.world.get_valid_actions(self.name, agent2loc)
+            action = action[0]
         #else choose from available north/south/east/west options
         else:
             action_options = self.world.get_valid_actions(self.name, agent2loc)
@@ -330,10 +331,12 @@ class Agent:
                 highest_q_value = max(next_state_qvalues.values())
 
             #print('Reward: ', reward)
-            print("action: ", action)
-            print("current_state: ", self.name, ": ", current_state)
-            print(self.q_table_no_block)
-            print("current_q_value: ", self.q_table_no_block[current_state[0], current_state[1]][action])
+            #print("action: ", action)
+            #print("current_state: ", self.name, ": ", current_state)
+            #print("formatted current state: ", [current_state[0], current_state[1]])
+            #print(self.q_table_no_block)
+            #self.print_q_table()
+            #print("current_q_value: ", self.q_table_no_block[current_state[0], current_state[1]][action])
             current_q_value = self.q_table_has_block[current_state[0], current_state[1]][action]
             self.q_table_has_block[current_state[0], current_state[1]][action] = (
                 1 - self.alpha) * current_q_value + self.alpha * (reward + self.gamma * highest_q_value)
@@ -342,8 +345,9 @@ class Agent:
 
         else:  #not holding a block
             next_state_qvalues = self.q_table_no_block[next_state[0], next_state[1]].copy()
+            #print("next_state_qvalues: ",[next_state[0], next_state[1]], ": ", next_state_qvalues)
             row = np.where((next_state[0:2] == self.world.pd_current_state[:, 0:2]).all(axis=1))[0].tolist()
-            print("row finder: ", np.where((next_state[0:2] == self.world.pd_current_state[:, 0:2]).all(axis=1))[0].tolist())
+            #print("row finder: ", np.where((next_state[0:2] == self.world.pd_current_state[:, 0:2]).all(axis=1))[0].tolist())
             if row:
                 # if pickup location is full delete those Q values from being considered
                 if self.world.pd_current_state[row[0], 2] == 0:
@@ -355,10 +359,12 @@ class Agent:
             else:
                 highest_q_value = max(next_state_qvalues.values())
             #print("Reward: ", reward)
-            print("action: ", action)
-            print("current_state: ", self.name, ": ", current_state)
-            print(self.q_table_no_block)
-            print("current_q_value: ", self.q_table_no_block[current_state[0], current_state[1]][action])
+            #print("action: ", action[0])
+            #print("current_state: ", self.name, ": ", current_state)
+            #print("formatted current state: ", [current_state[0], current_state[1]])
+            #print(self.q_table_no_block)
+            #self.print_q_table()
+            #print("current_q_value: ", self.q_table_no_block[current_state[0], current_state[1]][action])
             current_q_value = self.q_table_no_block[current_state[0], current_state[1]][action]
             self.q_table_no_block[current_state[0], current_state[1]][action] = (
                 1 - self.alpha) * current_q_value + self.alpha * (reward + self.gamma * highest_q_value)
