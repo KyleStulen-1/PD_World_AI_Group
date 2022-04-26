@@ -403,6 +403,27 @@ class Agent:
                 1 - self.alpha) * current_q_value + self.alpha * (reward + self.gamma * highest_q_value)
             print("Updates Q Values: ", self.q_table_no_block[current_state[0], current_state[1]], "at ",self.name,": ", current_state)
 
+    def SARSA(self, current_state, reward, next_state, action, agent2loc):
+        if current_state[2]:  # block
+            next_state_action = self.PEXPLOIT(self.world.get_valid_actions(self.name, agent2loc))
+            next_state_q_value = self.q_table_has_block[next_state[0], next_state[1]][next_state_action]
+            current_q_value = self.q_table_has_block[current_state[0], current_state[1]][action]
+
+            self.q_table_has_block[current_state[0], current_state[1]][action] = current_q_value + (
+                    self.alpha * (reward + (self.gamma * next_state_q_value) - current_q_value))
+
+            print("Updated q values:", self.q_table_has_block[current_state[0], current_state[1]], "at ", self.name, ":", current_state)
+        else:
+            next_state_action = self.PEXPLOIT(self.world.get_valid_actions(self.name, agent2loc))
+            next_state_q_value = self.q_table_no_block[next_state[0], next_state[1]][next_state_action]
+            current_q_value = self.q_table_no_block[current_state[0], current_state[1]][action]
+
+            self.q_table_no_block[current_state[0], current_state[1]][action] = current_q_value + (
+                    self.alpha * (reward + (self.gamma * next_state_q_value) - current_q_value))
+
+            print("Updated q values:", self.q_table_no_block[current_state[0], current_state[1]], "at", self.name, ":", current_state)
+        return
+
     def get_heatmap_Q_values(self):
         #holding block
         N_block = np.arange(25,dtype=float).reshape(5,5)

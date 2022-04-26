@@ -16,3 +16,9 @@
 1c pexploit 
 	terminal 12 
 	reward -972
+2 sarsa 
+	terminal 14 
+	reward 176 
+2 sarsa 
+	terminal 12 
+	reward -818
