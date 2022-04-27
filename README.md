@@ -4,7 +4,7 @@ Requirements:
 
 Instructions: 
 - run pd_world with command "python main.py"
-- alter running parameters on lines 120-126
+- alter running parameters on lines 242-251
 - policies 
     - 1: PRANDOM
     - 2: PGREEDY

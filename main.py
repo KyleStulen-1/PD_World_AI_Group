@@ -17,7 +17,6 @@ def play(world, agent_F, agent_M, policy, max_steps, SARSA):
     while step < 500:
         print("Steps: ", step)
         step += 1
-        reward = 0
         if agent_F_turn:
             current_state = world.female_current_state.copy()
             action = agent_F.PRANDOM(world.male_current_state[0:2])
@@ -46,7 +45,6 @@ def play(world, agent_F, agent_M, policy, max_steps, SARSA):
     while step < max_steps:
         print("Steps: ", step)
         step += 1
-        reward = 0
         if agent_F_turn:
             current_state = world.female_current_state.copy()
             if policy == 1:
@@ -111,18 +109,151 @@ def play(world, agent_F, agent_M, policy, max_steps, SARSA):
 
     return reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title
 
+#this entire method is basically the same as play with some added termination condtions
+def exp4(world, agent_F, agent_M, policy, max_steps, SARSA):
+    step = 0
+    total_reward = 0
+    reward_log = []  # list of reward after every step
+    reward_per_episode = 0  # the reward tracked for each terminal state
+    reward_per_episode_log = []  # log of the reward amount required to reach each terminal state
+    steps_at_terminal_log = []  # the total number of steps at each terminal state
+    terminal_y = []  # tracks the total rewards at terminal states for graphing purposes
 
+    flag = True  #tracks if the PDWorld.starting_state has not been changed yet
+    agent_F_turn = True  # toggle for which agent's turn it is
+
+    while step < 500:
+        print("Steps: ", step)
+        step += 1
+        if agent_F_turn:
+            current_state = world.female_current_state.copy()
+            action = agent_F.PRANDOM(world.male_current_state[0:2])
+            reward = world.take_action(action, agent_F.name)
+            next_state = world.female_current_state.copy()
+            agent_F.Q_Learning(current_state, reward, next_state, action)
+            agent_F_turn = False
+        #else male
+        else:
+            current_state = world.male_current_state.copy()
+            action = agent_M.PRANDOM(world.female_current_state[0:2])
+            reward = world.take_action(action, agent_M.name)
+            next_state = world.male_current_state.copy()
+            agent_M.Q_Learning(current_state, reward, next_state, action)
+            agent_F_turn = True
+
+        total_reward += reward
+        reward_per_episode += reward
+        if world.check_terminal_state():
+            steps_at_terminal_log.append(step-1)
+            terminal_y.append(total_reward)
+            reward_per_episode_log.append(reward_per_episode)
+            reward_per_episode = 0
+        reward_log.append(total_reward)
+
+        if len(terminal_y) == 4 and flag == True:
+            world.starting_state[0] = [0, 1, 10]
+            world.starting_state[1] = [3, 4, 10]
+            world.terminal_state[0] = [0, 1, 0]
+            world.terminal_state[1] = [3, 4, 0]
+            world.__init__()
+            flag = False
+
+    while step < max_steps:
+        print("Steps: ", step)
+        step += 1
+        if agent_F_turn:
+            current_state = world.female_current_state.copy()
+            if policy == 1:
+                action = agent_F.PRANDOM(world.male_current_state[0:2])
+                graph_title = "PRANDOM"
+            elif policy == 2:
+                action = agent_F.PGREEDY(world.male_current_state[0:2])
+                graph_title = "PGREEDY"
+            elif policy == 3:
+                action = agent_F.PEXPLOIT(world.male_current_state[0:2])
+                graph_title = "PEXPLOIT"
+            reward = world.take_action(action, agent_F.name)
+            next_state = world.female_current_state.copy()
+            if SARSA:
+                agent_F.SARSA(current_state, reward, next_state, action, world.female_current_state[0:2])
+            else:
+                agent_F.Q_Learning(current_state, reward, next_state, action)
+            agent_F_turn = False
+
+        else:
+            current_state = world.male_current_state.copy()
+            if policy == 1:
+                action = agent_M.PRANDOM(world.female_current_state[0:2])
+                graph_title = "PRANDOM"
+            elif policy == 2:
+                action = agent_M.PGREEDY(world.female_current_state[0:2])
+                graph_title = "PGREEDY"
+            elif policy == 3:
+                action = agent_M.PEXPLOIT(world.female_current_state[0:2])
+                graph_title = "PEXPLOIT"
+            reward = world.take_action(action, agent_M.name)
+            next_state = world.male_current_state.copy()
+            if SARSA:
+                agent_M.SARSA(current_state, reward, next_state, action, world.female_current_state[0:2])
+            else:
+                agent_M.Q_Learning(current_state, reward, next_state, action)
+            agent_F_turn = True
+
+        total_reward += reward
+        reward_per_episode += reward
+        if world.check_terminal_state():
+            steps_at_terminal_log.append(step - 1)
+            terminal_y.append(total_reward)
+            reward_per_episode_log.append(reward_per_episode)
+            reward_per_episode = 0
+        reward_log.append(total_reward)
+
+        if len(terminal_y) == 4 and flag == True:
+            world.starting_state[0] = [0, 1, 10]
+            world.starting_state[1] = [3, 4, 10]
+            world.terminal_state[0] = [0, 1, 0]
+            world.terminal_state[1] = [3, 4, 0]
+            world.__init__()
+            flag = False
+
+        if len(terminal_y) == 7:
+            print("7 terminal states reached")
+            break
+
+    agent_F.print_q_table()
+    agent_M.print_q_table()
+
+    print("Total steps taken: ", len(reward_log))
+    print('Number of terminal states the agent reached: ', world.num_terminal_states_reached)
+    print('Total reward: ', total_reward)
+
+    F_q_values = agent_F.get_heatmap_Q_values()
+    M_q_values = agent_M.get_heatmap_Q_values()
+
+    if SARSA:
+        title = f'{graph_title} with SARSA=True, alpha={agent_F.alpha}, gamma={agent_F.gamma}'
+    else:
+        title = f'{graph_title} with SARSA=False, alpha={agent_F.alpha}, gamma={agent_F.gamma}'
+
+    return reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title
 
 
 world = pd_world.PDWorld()
-female_agent = pd_world.Agent("F", world, alpha=0.45, gamma=0.5)
-male_agent = pd_world.Agent("M", world, alpha=0.45, gamma=0.5)
+female_agent = pd_world.Agent("F", world, alpha=0.3, gamma=0.5)
+male_agent = pd_world.Agent("M", world, alpha=0.3, gamma=0.5)
 
 #SET POLICY HERE AND SARSA HERE
 reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title = play(
     world, female_agent, male_agent, policy=3, max_steps=8000, SARSA=True)
+
+#EXPERIMENT 4: uncomment this, and comment above play to run, make no changes
+#reward_log, steps_at_terminal_log, terminal_y, reward_per_episode_log, F_q_values, M_q_values, title = exp4(
+#    world, female_agent, male_agent, policy=3, max_steps=70000, SARSA=False)
+
 #SET FILE NAMES HERE
-run = ["3_SARSA_PEXPLOIT_a45","run_2"]
+run = ["4_EXPLOIT","run_2"]
+
+#ALL CODE BELOW HERE IS FOR CREATING GRAPH AND HEATMAP IMAGES
 
 # Calculate number of steps between terminal states and store their indexes for graphing
 steps_between_terminal_states = [steps_at_terminal_log[0]]

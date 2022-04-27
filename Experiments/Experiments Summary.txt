@@ -36,3 +36,13 @@
 3 sarsa a=0.45
 	terminal 12
 	reward -1000
+	
+4 change start exploit 
+	terminal 7 
+	reward -6059
+	steps 9979 
+	
+4 change start exploit 
+	terminal 7 
+	reward -21687
+	steps 25607
